@@ -1,7 +1,6 @@
 package com.borisjerev.leadconsult.services.impl;
 
 import com.borisjerev.leadconsult.entities.Course;
-import com.borisjerev.leadconsult.entities.Student;
 import com.borisjerev.leadconsult.enums.CourseTypes;
 import com.borisjerev.leadconsult.repositories.CourseRepository;
 import com.borisjerev.leadconsult.services.contract.CourseService;

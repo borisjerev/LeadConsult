@@ -1,7 +1,6 @@
 package com.borisjerev.leadconsult.contollers;
 
 import com.borisjerev.leadconsult.entities.Course;
-import com.borisjerev.leadconsult.entities.Teacher;
 import com.borisjerev.leadconsult.services.contract.CourseService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

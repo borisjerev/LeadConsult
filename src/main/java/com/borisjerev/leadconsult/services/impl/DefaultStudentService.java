@@ -77,15 +77,14 @@ public class DefaultStudentService implements StudentService {
         student.setAge(studentDTO.getAge());
 
         if (studentDTO.getAssignedCourse() != null && studentDTO.getAssignedGroup() != null
-                && studentDTO.getAssignedTeachers() != null
-                && !studentDTO.getAssignedTeachers().isEmpty()) {
+                && studentDTO.getAssignedTeacher() != null) {
             student = studentRepository.save(student);
             saveTeacherStudentRelationship(student.getStudentId(), studentDTO);
 
             return student;
         } else if (studentDTO.getAssignedCourse() == null
                 && studentDTO.getAssignedGroup() == null
-                && (studentDTO.getAssignedTeachers() == null || studentDTO.getAssignedTeachers().isEmpty())) {
+                && studentDTO.getAssignedTeacher() == null) {
             return studentRepository.save(student);
         }
 
@@ -107,15 +106,13 @@ public class DefaultStudentService implements StudentService {
                 .build();
 
         if (studentDTO.getAssignedCourse() != null && studentDTO.getAssignedGroup() != null
-                && studentDTO.getAssignedTeachers() != null
-                && !studentDTO.getAssignedTeachers().isEmpty()) {
+                && studentDTO.getAssignedTeacher() != null) {
             deleteRelationship(studentId);
             saveTeacherStudentRelationship(studentId, studentDTO);
 
             return studentRepository.save(student);
         } else if (studentDTO.getAssignedCourse() == null
-                && studentDTO.getAssignedGroup() == null
-                && (studentDTO.getAssignedTeachers() == null || studentDTO.getAssignedTeachers().isEmpty())) {
+                && studentDTO.getAssignedGroup() == null) {
             return studentRepository.save(student);
         }
 
@@ -135,14 +132,14 @@ public class DefaultStudentService implements StudentService {
 
     private void saveTeacherStudentRelationship(long studentId, StudentDTO studentDTO) {
         final List<TeacherStudent> teacherStudents = new ArrayList<>();
-        studentDTO.getAssignedTeachers().forEach(t -> {
-            final TeacherStudent teacherStudent = new TeacherStudent();
-            teacherStudent.setStudentId(studentId);
-            teacherStudent.setTeacherId(t);
-            teacherStudent.setCourseId(studentDTO.getAssignedCourse());
-            teacherStudent.setGroupp(studentDTO.getAssignedGroup());
-            teacherStudents.add(teacherStudent);
-        });
+
+        final TeacherStudent teacherStudent = new TeacherStudent();
+        teacherStudent.setStudentId(studentId);
+        teacherStudent.setTeacherId(studentDTO.getAssignedTeacher());
+        teacherStudent.setCourseId(studentDTO.getAssignedCourse());
+        teacherStudent.setGroupp(studentDTO.getAssignedGroup());
+        teacherStudents.add(teacherStudent);
+
         teacherStudentRepository.saveAll(teacherStudents);
     }
 }

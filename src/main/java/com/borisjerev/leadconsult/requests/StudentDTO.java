@@ -25,5 +25,5 @@ public class StudentDTO {
     private String assignedGroup;
 
     @Nullable
-    private List<Long> assignedTeachers;
+    private Long assignedTeacher;
 }

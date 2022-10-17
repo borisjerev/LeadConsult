@@ -73,7 +73,7 @@ public class DefaultTeacherService implements TeacherService {
             return teacher;
         } else if (teacherDTO.getAssignedCourse() == null
                     && teacherDTO.getAssignedStudents() == null
-                    && (teacherDTO.getAssignedStudents() == null || teacherDTO.getAssignedStudents().isEmpty())) {
+                    && (teacherDTO.getAssignedGroup() == null || teacherDTO.getAssignedStudents().isEmpty())) {
             return teacherRepository.save(teacher);
         }
 

@@ -132,15 +132,12 @@ public class DefaultStudentService implements StudentService {
     }
 
     private void saveTeacherStudentRelationship(long studentId, StudentDTO studentDTO) {
-        final List<TeacherStudent> teacherStudents = new ArrayList<>();
-
         final TeacherStudent teacherStudent = new TeacherStudent();
         teacherStudent.setStudentId(studentId);
         teacherStudent.setTeacherId(studentDTO.getAssignedTeacher());
         teacherStudent.setCourseId(studentDTO.getAssignedCourse());
         teacherStudent.setGroupp(studentDTO.getAssignedGroup());
-        teacherStudents.add(teacherStudent);
 
-        teacherStudentRepository.saveAll(teacherStudents);
+        teacherStudentRepository.save(teacherStudent);
     }
 }

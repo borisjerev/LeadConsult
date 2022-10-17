@@ -20,7 +20,7 @@ public class DefaultTeacherService implements TeacherService {
     private final TeacherStudentRepository teacherStudentRepository;
 
     private static final String VARIABLES_NOT_GIVEN_WHEN_ASSIGNING =
-            "When you assign Student to Teacher course and group, " +
+            "When you assign Student(s) to Teacher course and group, " +
             "'assignedCourse', 'assignedGroup', 'assignedStudents' variables must be given";
 
     private static final String TEACHER_WITH_ID_NOT_PRESENT = "Teacher with id[%d] not present";
@@ -82,7 +82,7 @@ public class DefaultTeacherService implements TeacherService {
 
     @Override
     @Transactional
-    public Teacher update(long teacherId, TeacherDTO teacherDto) {
+    public Teacher update(long teacherId, TeacherDTO teacherDTO) {
         final Optional<Teacher> teacherOptional = teacherRepository.findById(teacherId);
         if (teacherOptional.isEmpty()) {
             throw new IllegalArgumentException(String.format(TEACHER_WITH_ID_NOT_PRESENT, teacherId));
@@ -90,14 +90,24 @@ public class DefaultTeacherService implements TeacherService {
 
         final Teacher teacher = Teacher.builder()
                 .teacherId(teacherId)
-                .age(teacherDto.getAge())
-                .name(teacherDto.getName())
+                .age(teacherDTO.getAge())
+                .name(teacherDTO.getName())
                 .build();
 
-        deleteRelationship(teacherId);
-        saveTeacherStudentRelationship(teacherId, teacherDto);
+        if (teacherDTO.getAssignedCourse() != null && teacherDTO.getAssignedGroup() != null
+                && teacherDTO.getAssignedStudents() != null
+                && !teacherDTO.getAssignedStudents().isEmpty()) {
+            deleteRelationship(teacherId);
+            saveTeacherStudentRelationship(teacherId, teacherDTO);
 
-        return teacherRepository.save(teacher);
+            return teacherRepository.save(teacher);
+        } else if (teacherDTO.getAssignedCourse() == null
+                && teacherDTO.getAssignedGroup() == null
+                && (teacherDTO.getAssignedStudents() == null || teacherDTO.getAssignedStudents().isEmpty())) {
+            return teacherRepository.save(teacher);
+        }
+
+        throw new IllegalArgumentException(VARIABLES_NOT_GIVEN_WHEN_ASSIGNING);
     }
 
     @Override

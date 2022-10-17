@@ -1,11 +1,11 @@
 package com.borisjerev.leadconsult.contollers;
 
 import com.borisjerev.leadconsult.entities.Student;
+import com.borisjerev.leadconsult.requests.StudentDTO;
 import com.borisjerev.leadconsult.services.contract.StudentService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -26,5 +26,20 @@ public class StudentController {
     @GetMapping("/{id}")
     public Student findBuTeacherId(@PathVariable long id) {
         return studentService.findByStudentId(id);
+    }
+
+    @PostMapping
+    public ResponseEntity<?> save(@RequestBody StudentDTO studentDTO) {
+        return new ResponseEntity<>(studentService.save(studentDTO), HttpStatus.CREATED);
+    }
+
+    @PutMapping("/{id}")
+    public Student update(@PathVariable long id, @RequestBody StudentDTO studentDTO) {
+        return studentService.update(id, studentDTO);
+    }
+
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable long id) {
+        studentService.delete(id);
     }
 }

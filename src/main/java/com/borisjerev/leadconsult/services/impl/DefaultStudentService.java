@@ -100,7 +100,7 @@ public class DefaultStudentService implements StudentService {
             throw new IllegalArgumentException(String.format(STUDENT_WITH_ID_NOT_PRESENT, studentId));
         }
 
-        final Student teacher = Student.builder()
+        final Student student = Student.builder()
                 .studentId(studentId)
                 .age(studentDTO.getAge())
                 .name(studentDTO.getName())
@@ -112,11 +112,11 @@ public class DefaultStudentService implements StudentService {
             deleteRelationship(studentId);
             saveTeacherStudentRelationship(studentId, studentDTO);
 
-            return studentRepository.save(teacher);
+            return studentRepository.save(student);
         } else if (studentDTO.getAssignedCourse() == null
                 && studentDTO.getAssignedGroup() == null
                 && (studentDTO.getAssignedTeachers() == null || studentDTO.getAssignedTeachers().isEmpty())) {
-            return studentRepository.save(teacher);
+            return studentRepository.save(student);
         }
 
         throw new IllegalArgumentException(VARIABLES_NOT_GIVEN_WHEN_ASSIGNING);

@@ -112,7 +112,8 @@ public class DefaultStudentService implements StudentService {
 
             return studentRepository.save(student);
         } else if (studentDTO.getAssignedCourse() == null
-                && studentDTO.getAssignedGroup() == null) {
+                && studentDTO.getAssignedGroup() == null
+                && studentDTO.getAssignedTeacher() == null) {
             return studentRepository.save(student);
         }
 

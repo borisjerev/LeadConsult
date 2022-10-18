@@ -1,7 +1,9 @@
 package com.borisjerev.leadconsult.services.impl;
 
+import com.borisjerev.leadconsult.entities.Student;
 import com.borisjerev.leadconsult.entities.Teacher;
 import com.borisjerev.leadconsult.entities.TeacherStudent;
+import com.borisjerev.leadconsult.repositories.StudentRepository;
 import com.borisjerev.leadconsult.repositories.TeacherRepository;
 import com.borisjerev.leadconsult.repositories.TeacherStudentRepository;
 import com.borisjerev.leadconsult.requests.TeacherDTO;
@@ -12,12 +14,15 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class DefaultTeacherService implements TeacherService {
 
     private final TeacherRepository teacherRepository;
     private final TeacherStudentRepository teacherStudentRepository;
+    private final StudentRepository studentRepository;
 
     private static final String VARIABLES_NOT_GIVEN_WHEN_ASSIGNING =
             "When you assign Student(s) to Teacher course and group, " +
@@ -25,11 +30,15 @@ public class DefaultTeacherService implements TeacherService {
 
     private static final String TEACHER_WITH_ID_NOT_PRESENT = "Teacher with id[%d] not present";
 
+    private static final String NO_STUDENTS_WITH_IDS = "There are no students with ids: %s";
+
 
     public DefaultTeacherService(TeacherRepository teacherRepository,
-                                 TeacherStudentRepository teacherStudentRepository) {
+                                 TeacherStudentRepository teacherStudentRepository,
+                                 StudentRepository studentRepository) {
         this.teacherRepository = teacherRepository;
         this.teacherStudentRepository = teacherStudentRepository;
+        this.studentRepository = studentRepository;
     }
 
     @Override
@@ -67,6 +76,7 @@ public class DefaultTeacherService implements TeacherService {
         if (teacherDTO.getAssignedCourse() != null && teacherDTO.getAssignedGroup() != null
                 && teacherDTO.getAssignedStudents() != null
                 && !teacherDTO.getAssignedStudents().isEmpty()) {
+            checkAllStudentsArePresent(teacherDTO);
             teacher = teacherRepository.save(teacher);
             saveTeacherStudentRelationship(teacher.getTeacherId(), teacherDTO);
 
@@ -97,6 +107,7 @@ public class DefaultTeacherService implements TeacherService {
         if (teacherDTO.getAssignedCourse() != null && teacherDTO.getAssignedGroup() != null
                 && teacherDTO.getAssignedStudents() != null
                 && !teacherDTO.getAssignedStudents().isEmpty()) {
+            checkAllStudentsArePresent(teacherDTO);
             deleteRelationship(teacherId);
             saveTeacherStudentRelationship(teacherId, teacherDTO);
 
@@ -121,6 +132,18 @@ public class DefaultTeacherService implements TeacherService {
         teacherStudentRepository.deleteByTeacherId(teacherId);
     }
 
+    private void checkAllStudentsArePresent(TeacherDTO teacherDTO) {
+        final List<Student> presentStudents =
+                (List<Student>) studentRepository.findAllById(teacherDTO.getAssignedStudents());
+        if (teacherDTO.getAssignedStudents().size() != presentStudents.size()) {
+            String[] notPresentedIds = getDifferenceBetween(presentStudents,
+                    teacherDTO.getAssignedStudents());
+
+            throw new IllegalArgumentException(String.format(NO_STUDENTS_WITH_IDS,
+                    String.join(",", notPresentedIds)));
+        }
+    }
+
     private void saveTeacherStudentRelationship(long teacherId, TeacherDTO teacherDTO) {
         final List<TeacherStudent> teacherStudents = new ArrayList<>();
         teacherDTO.getAssignedStudents().forEach(s -> {
@@ -132,5 +155,22 @@ public class DefaultTeacherService implements TeacherService {
             teacherStudents.add(teacherStudent);
         });
         teacherStudentRepository.saveAll(teacherStudents);
+    }
+
+    private String[] getDifferenceBetween(List<Student> presentStudents,
+                                          Set<Long> studentIds) {
+        final List<Long> presentedStudentsIds =
+                presentStudents.stream()
+                        .map(Student::getStudentId)
+                        .collect(Collectors.toList());
+
+        final List<String> notPresentedIds =
+                studentIds.stream()
+                        .filter(l -> !presentedStudentsIds.contains(l))
+                        .map(l -> l + "")
+                        .collect(Collectors.toList());
+
+
+        return notPresentedIds.toArray(new String[] {});
     }
 }

@@ -6,7 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
+import java.util.Set;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -25,5 +25,5 @@ public class TeacherDTO {
     private String assignedGroup;
 
     @Nullable
-    private List<Long> assignedStudents;
+    private Set<Long> assignedStudents;
 }
